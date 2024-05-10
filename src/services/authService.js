@@ -1,20 +1,29 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = "2340238940234";
+const mysqlClient = require("../config/db/databaseConnection");
+
 async function registerUser(userData) {
   try {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-    const newUser = new User({
-      username: userData.username,
-      email: userData.email,
-      password: hashedPassword,
+    const newUser = new User(userData.username, userData.email, hashedPassword);
+
+    console.log(`Inserting user: ${JSON.stringify(newUser)}`);
+
+    const query = `INSERT INTO users (name, email, password) VALUES ('${newUser.username}',  '${userData.email}', '${hashedPassword}')`;
+
+    const result = await new Promise((resolve, reject) => {
+      mysqlClient.query(query, (err, result) => {
+        if (err) reject(err);
+        resolve(result);
+      });
     });
 
-    const savedUser = await newUser.save();
+    console.log(`User inserted: ${JSON.stringify(result)}`);
 
-    return savedUser;
+    return result;
   } catch (error) {
     throw error;
   }
@@ -22,16 +31,30 @@ async function registerUser(userData) {
 
 async function loginUser(email, password) {
   try {
-    const user = await User.findOne({ email });
+    const query = `SELECT * FROM users WHERE email = '${email}'`;
 
-    if (!user) {
+    const result = await new Promise((resolve, reject) => {
+      mysqlClient.query(query, (err, result) => {
+        if (err) reject("Error logging in");
+        resolve(result);
+      });
+    });
+
+    if (result.length === 0) {
       throw new Error("User not found");
     }
 
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const user = result[0];
 
-    if (!isPasswordMatch) {
-      throw new Error("Incorrect password");
+    const match = await new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (err) reject("Incorrect credentials");
+        resolve(result);
+      });
+    });
+
+    if (!match) {
+      throw new Error("Incorrect credentials");
     }
 
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
@@ -44,4 +67,16 @@ async function loginUser(email, password) {
   }
 }
 
-module.exports = { registerUser, loginUser };
+async function logout(token) {
+  const query = `INSERT INTO expired_token (token) VALUES ('${token}')`;
+
+  const result = await new Promise((resolve, reject) => {
+    mysqlClient.query(query, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+
+  return result;
+}
+module.exports = { registerUser, loginUser, logout };

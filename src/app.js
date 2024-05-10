@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const helmet = require("helmet");
+const mysqlClient = require("./config/db/databaseConnection");
 
 require("dotenv").config({ path: "./config/dev" });
 
@@ -10,6 +11,15 @@ require("dotenv").config({ path: "./config/dev" });
 app.use(bodyParser.json());
 app.use(cors());
 app.use(helmet());
+
+// Database connection
+mysqlClient.connect((err) => {
+  if (err) {
+    console.error("Error connecting to database:", err);
+    return;
+  }
+  console.info("Conexión exitosa a la base de datos");
+});
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
