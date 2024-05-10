@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const JWT_SECRET = "2340238940234";
+const JWT_SECRET = process.env.JWT_SECRET;
 const mysqlClient = require("../config/db/databaseConnection");
 
 async function registerUser(userData) {

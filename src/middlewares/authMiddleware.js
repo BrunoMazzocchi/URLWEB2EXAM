@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = "2340238940234";
+const JWT_SECRET = process.env.JWT_SECRET;
 const mysqlClient = require("../config/db/databaseConnection");
 
 async function authMiddleware(req, res, next) {

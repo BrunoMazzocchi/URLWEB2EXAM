@@ -4,8 +4,11 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const mysqlClient = require("./config/db/databaseConnection");
+const path = require("path");
 
-require("dotenv").config({ path: "./config/dev" });
+require("dotenv").config({
+  path: path.resolve(__dirname, "./config/env/dev.env"),
+});
 
 // Middleware
 app.use(bodyParser.json());
