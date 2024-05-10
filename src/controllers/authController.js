@@ -37,7 +37,7 @@ async function login(req, res) {
 
 async function logout(req, res) {
   try {
-    const token = req.headers.authorization.split(" ")[1];
+    const token = req.headers.authorization;
 
     await authService.logout(token);
 
@@ -49,4 +49,18 @@ async function logout(req, res) {
   }
 }
 
-module.exports = { register, login, logout };
+async function getUserByEmail(req, res) {
+  try {
+    const { email } = req.body;
+
+    const user = await authService.getUserByEmail(email);
+
+    res.status(200).json({ message: "Success", user });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error getting user", error: error.message });
+  }
+}
+
+module.exports = { register, login, logout, getUserByEmail };

@@ -79,4 +79,18 @@ async function logout(token) {
 
   return result;
 }
-module.exports = { registerUser, loginUser, logout };
+
+async function getUserByEmail(email) {
+  const query = `SELECT * FROM users WHERE email = '${email}'`;
+
+  const result = await new Promise((resolve, reject) => {
+    mysqlClient.query(query, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+
+  return new User(result[0].name, result[0].email);
+}
+
+module.exports = { registerUser, loginUser, logout, getUserByEmail };
