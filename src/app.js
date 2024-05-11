@@ -26,8 +26,10 @@ mysqlClient.connect((err) => {
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
+const postRoutes = require("./routes/postRoutes");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

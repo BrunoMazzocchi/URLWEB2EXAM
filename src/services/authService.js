@@ -21,9 +21,9 @@ async function registerUser(userData) {
       });
     });
 
-    console.log(`User inserted: ${JSON.stringify(result)}`);
+    const resultUser = await getUserByEmail(userData.email);
 
-    return result;
+    return resultUser;
   } catch (error) {
     throw error;
   }
@@ -57,7 +57,7 @@ async function loginUser(email, password) {
       throw new Error("Incorrect credentials");
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: user.user_id }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
