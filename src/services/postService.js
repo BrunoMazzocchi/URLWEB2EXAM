@@ -49,7 +49,7 @@ async function deletePost(postId) {
 }
 
 async function getPostsByID(userId) {
-  const query = `SELECT * FROM posts WHERE user_id=${userId}`;
+  const query = `SELECT * FROM posts WHERE user_id=${userId} AND state != 3 ORDER BY last_updated DESC`;
 
   const result = await new Promise((resolve, reject) => {
     mysqlClient.query(query, (err, result) => {
