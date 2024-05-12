@@ -80,8 +80,8 @@ async function logout(token) {
   return result;
 }
 
-async function getUserByEmail(email) {
-  const query = `SELECT * FROM users WHERE email = '${email}'`;
+async function getDataByUserId(userId) {
+  const query = `SELECT * FROM users WHERE user_id = '${userId}'`;
 
   const result = await new Promise((resolve, reject) => {
     mysqlClient.query(query, (err, result) => {
@@ -90,7 +90,12 @@ async function getUserByEmail(email) {
     });
   });
 
-  return new User(result[0].name, result[0].email);
+  const newUser = new User();
+  newUser.username = result[0].name;
+  newUser.email = result[0].email;
+  newUser.userId = result[0].user_id;
+
+  return newUser;
 }
 
-module.exports = { registerUser, loginUser, logout, getUserByEmail };
+module.exports = { registerUser, loginUser, logout, getDataByUserId };

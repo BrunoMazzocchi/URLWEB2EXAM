@@ -49,11 +49,11 @@ async function logout(req, res) {
   }
 }
 
-async function getUserByEmail(req, res) {
-  try {
-    const { email } = req.body;
+async function getDataByUser(req, res) {
+  const userId = req.userId;
 
-    const user = await authService.getUserByEmail(email);
+  try {
+    const user = await authService.getDataByUserId(userId);
 
     res.status(200).json({ message: "Success", user });
   } catch (error) {
@@ -63,4 +63,4 @@ async function getUserByEmail(req, res) {
   }
 }
 
-module.exports = { register, login, logout, getUserByEmail };
+module.exports = { register, login, logout, getDataByUser };
