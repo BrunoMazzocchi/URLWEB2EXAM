@@ -7,7 +7,6 @@ const mysqlClient = require("./config/db/databaseConnection");
 const path = require("path");
 const swaggerUi = require("swagger-ui-express");
 
-const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
 const swaggerJsdoc = require("swagger-jsdoc");
 
 require("dotenv").config({
@@ -46,8 +45,9 @@ mysqlClient.connect((err) => {
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
-
+const courseRoutes = require("./routes/courseRoutes");
 app.use("/api/auth", authRoutes);
+app.use("/api/courses", courseRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
