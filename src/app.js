@@ -5,10 +5,30 @@ const cors = require("cors");
 const helmet = require("helmet");
 const mysqlClient = require("./config/db/databaseConnection");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+
+const pathToSwaggerUi = require("swagger-ui-dist").absolutePath();
+const swaggerJsdoc = require("swagger-jsdoc");
 
 require("dotenv").config({
   path: path.resolve(__dirname, "./config/env/dev.env"),
 });
+
+// Swagger setup
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Course API",
+      version: "1.0.0",
+      description: "Api to handle courses and users",
+    },
+  },
+  apis: ["./routes/*.js"],
+};
+
+const openapiSpecification = swaggerJsdoc(options);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 
 // Middleware
 app.use(bodyParser.json());
