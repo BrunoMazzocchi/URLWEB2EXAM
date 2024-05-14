@@ -11,7 +11,8 @@ require("dotenv").config({
 });
 
 // Middleware
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.use(cors());
 app.use(helmet());
 
@@ -35,6 +36,14 @@ app.use("/api/posts", postRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something went wrong!");
+});
+
+// If the payload is too large, the server will return a 413 status code
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && "body" in err && err.status === 400) {
+    return res.status(413).send({ error: "Request entity too large" });
+  }
+  next();
 });
 
 // Start server

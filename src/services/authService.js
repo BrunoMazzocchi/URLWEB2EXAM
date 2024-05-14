@@ -8,23 +8,35 @@ async function registerUser(userData) {
   try {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-    const newUser = new User(userData.username, userData.email, hashedPassword);
+    const newUser = {
+      username: userData.username,
+      email: userData.email,
+      password: hashedPassword,
+    };
 
-    console.log(`Inserting user: ${JSON.stringify(newUser)}`);
-
-    const query = `INSERT INTO users (name, email, password) VALUES ('${newUser.username}',  '${userData.email}', '${hashedPassword}')`;
+    const query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+    const values = [newUser.username, newUser.email, hashedPassword];
 
     const result = await new Promise((resolve, reject) => {
-      mysqlClient.query(query, (err, result) => {
-        if (err) reject(err);
+      mysqlClient.query(query, values, (err, result) => {
+        if (err) {
+          console.error("Database insertion error:", err);
+          return reject(err);
+        }
         resolve(result);
       });
     });
 
-    const resultUser = await getUserByEmail(userData.email);
+    console.log("Insert result:", result);
 
+    const resultUser = new User(
+      newUser.username,
+      newUser.email,
+      result.insertId
+    );
     return resultUser;
   } catch (error) {
+    console.error("Error during user registration:", error);
     throw error;
   }
 }
