@@ -11,6 +11,12 @@ async function authMiddleware(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Validates that the token is not expired
+    if (decoded.exp <= Date.now() / 1000) {
+      return res.status(401).json({ message: "Token expired" });
+    }
+
     req.user = decoded.user;
 
     // Check if token exists in the database blacklist
