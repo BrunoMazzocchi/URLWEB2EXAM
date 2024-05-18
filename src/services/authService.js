@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const JWT_SECRET = process.env.JWT_SECRET;
 const mysqlClient = require("../config/db/databaseConnection");
+const logger = require("../../logger");
 
 async function registerUser(userData) {
   try {
@@ -34,6 +35,8 @@ async function registerUser(userData) {
       newUser.email,
       result.insertId
     );
+
+    logger.info("User registered successfully" + resultUser.userId);
     return resultUser;
   } catch (error) {
     console.error("Error during user registration:", error);
@@ -73,6 +76,7 @@ async function loginUser(email, password) {
       expiresIn: "1h",
     });
 
+    logger.info("User logged in successfully" + user.user_id + " " + token);
     return token;
   } catch (error) {
     throw error;
@@ -89,6 +93,7 @@ async function logout(token) {
     });
   });
 
+  logger.info("User logged out successfully");
   return result;
 }
 
@@ -107,6 +112,7 @@ async function getDataByUserId(userId) {
   newUser.email = result[0].email;
   newUser.userId = result[0].user_id;
 
+  logger.info("User data retrieved successfully" + newUser.userId);
   return newUser;
 }
 

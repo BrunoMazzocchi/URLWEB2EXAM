@@ -1,8 +1,10 @@
 const mysqlClient = require("../config/db/databaseConnection");
 const PostModel = require("../models/postModel");
+const logger = require("../../logger");
 
 async function createPost(userId, postData) {
-  const query = `INSERT INTO posts (title, content, image, description, user_id) VALUES ('${postData.title}', '${postData.content}', '${postData.image}', '${postData.description}', '${userId}')`;
+  const query = `INSERT INTO posts (title, content, image, description, user_id) VALUES
+   ('${postData.title}', '${postData.content}', '${postData.image}', '${postData.description}', '${userId}')`;
 
   const result = await new Promise((resolve, reject) => {
     mysqlClient.query(query, (err, result) => {
@@ -11,6 +13,7 @@ async function createPost(userId, postData) {
     });
   });
 
+  logger.info("Post created successfully");
   return result;
 }
 
@@ -45,6 +48,7 @@ async function deletePost(postId) {
     });
   });
 
+  logger.info("Post deleted successfully");
   return result;
 }
 
@@ -65,6 +69,7 @@ async function getPostsByID(userId) {
     });
   });
 
+  logger.info("Posts retrieved successfully");
   return result;
 }
 
