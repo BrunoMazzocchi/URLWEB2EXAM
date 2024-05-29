@@ -3,9 +3,13 @@ const authService = require("../services/authService");
 
 async function register(req, res) {
   try {
-    const { username, email, password, role } = req.body;
+    let { username, email, password, role } = req.body;
 
-    if (!Number.isInteger(role) || role == null) {
+    if (role == null) {
+      role = 2;
+    }
+
+    if (!Number.isInteger(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
