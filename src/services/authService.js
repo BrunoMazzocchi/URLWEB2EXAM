@@ -5,7 +5,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const mysqlClient = require("../config/db/databaseConnection");
 const logger = require("../../logger");
 
-async function registerUser(userData) {
+async function registerUser(userData, role) {
+  console.log(role);
   try {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
@@ -33,7 +34,7 @@ async function registerUser(userData) {
 
     // By the default, all users are registered as editor users
 
-    const roleQuery = `INSERT INTO user_role (user_id, role_id) VALUES (${newUserId}, 2)`;
+    const roleQuery = `INSERT INTO user_role (user_id, role_id) VALUES (${newUserId}, ${role})`;
 
     const roleResult = await new Promise((resolve, reject) => {
       mysqlClient.query(roleQuery, (err, result) => {
@@ -44,9 +45,6 @@ async function registerUser(userData) {
         resolve(result);
       });
     });
-
-    console.log("Insert result:", result);
-    console.log("Role result:", roleResult);
 
     const resultUser = new User(
       newUser.username,

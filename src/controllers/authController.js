@@ -3,15 +3,20 @@ const authService = require("../services/authService");
 
 async function register(req, res) {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
-    console.log(req.body);
+    if (!Number.isInteger(role) || role == null) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
 
-    const newUser = await authService.registerUser({
-      username,
-      email,
-      password,
-    });
+    const newUser = await authService.registerUser(
+      {
+        username,
+        email,
+        password,
+      },
+      role
+    );
 
     res
       .status(201)
@@ -22,7 +27,6 @@ async function register(req, res) {
       .json({ message: "Error registering user", error: error.message });
   }
 }
-
 async function login(req, res) {
   try {
     const { email, password } = req.body;
