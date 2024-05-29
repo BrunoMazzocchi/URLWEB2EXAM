@@ -10,7 +10,9 @@ const postMiddleware = (req, res, next) => {
       const decoded = jwt.verify(token, JWT_SECRET);
 
       const userId = decoded.userId;
+      const role = decoded.role;
       req.userId = userId;
+      req.role = role;
     } catch (error) {
       logger.error("Invalid token");
       return res.status(401).json({ message: "Invalid token" });

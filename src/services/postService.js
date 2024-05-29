@@ -52,14 +52,21 @@ async function deletePost(postId) {
   return result;
 }
 
-async function getPostsByID(userId) {
-  const query = `SELECT * FROM posts WHERE user_id=${userId} AND state != 3 ORDER BY last_updated DESC`;
+async function getPostsByID(userId, role) {
+  const query =
+    role === "ADMIN"
+      ? "SELECT * FROM posts WHERE state != 3 ORDER BY last_updated DESC"
+      : `SELECT * FROM posts WHERE user_id=${userId} AND state != 3 ORDER BY last_updated DESC`;
 
   const result = await new Promise((resolve, reject) => {
     mysqlClient.query(query, (err, result) => {
       if (err) reject(err);
-      if (!result || result.length === 0) {
+      if (!result) {
         const error = new Error("User not found");
+        error.code = "NOT_FOUND";
+        reject(error);
+      } else if (result.length === 0) {
+        const error = new Error("No posts found");
         error.code = "NOT_FOUND";
         reject(error);
       } else {

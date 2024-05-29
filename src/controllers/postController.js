@@ -67,9 +67,10 @@ async function deletePost(req, res) {
 
 async function getImageByUserId(req, res) {
   const userId = req.userId;
+  const role = req.role;
 
   try {
-    const posts = await postService.getPostsByID(userId);
+    const posts = await postService.getPostsByID(userId, role);
     if (posts.length === 0) {
       return res.status(404).json({ message: "No posts found" });
     }

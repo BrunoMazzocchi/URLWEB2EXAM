@@ -16,6 +16,7 @@ async function registerUser(userData) {
     };
 
     const query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+
     const values = [newUser.username, newUser.email, hashedPassword];
 
     const result = await new Promise((resolve, reject) => {
@@ -28,7 +29,24 @@ async function registerUser(userData) {
       });
     });
 
+    const newUserId = result.insertId;
+
+    // By the default, all users are registered as editor users
+
+    const roleQuery = `INSERT INTO user_role (user_id, role_id) VALUES (${newUserId}, 2)`;
+
+    const roleResult = await new Promise((resolve, reject) => {
+      mysqlClient.query(roleQuery, (err, result) => {
+        if (err) {
+          console.error("Database insertion error:", err);
+          return reject(err);
+        }
+        resolve(result);
+      });
+    });
+
     console.log("Insert result:", result);
+    console.log("Role result:", roleResult);
 
     const resultUser = new User(
       newUser.username,
@@ -46,7 +64,10 @@ async function registerUser(userData) {
 
 async function loginUser(email, password) {
   try {
-    const query = `SELECT * FROM users WHERE email = '${email}'`;
+    const query = `SELECT users.*, roles.role FROM users 
+               INNER JOIN user_role ON users.user_id = user_role.user_id 
+               INNER JOIN roles ON user_role.role_id = roles.role_id 
+               WHERE users.email = '${email}'`;
 
     const result = await new Promise((resolve, reject) => {
       mysqlClient.query(query, (err, result) => {
@@ -72,9 +93,13 @@ async function loginUser(email, password) {
       throw new Error("Incorrect credentials");
     }
 
-    const token = jwt.sign({ userId: user.user_id }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user.user_id, role: user.role },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
 
     logger.info("User logged in successfully" + user.user_id + " " + token);
     return token;
